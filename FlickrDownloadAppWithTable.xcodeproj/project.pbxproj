@@ -14,6 +14,8 @@
 		142CF2421EF7020B00CD50F7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 142CF2411EF7020B00CD50F7 /* Assets.xcassets */; };
 		142CF2451EF7020B00CD50F7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 142CF2431EF7020B00CD50F7 /* LaunchScreen.storyboard */; };
 		142CF2501EF7020B00CD50F7 /* FlickrDownloadAppWithTableTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 142CF24F1EF7020B00CD50F7 /* FlickrDownloadAppWithTableTests.m */; };
+		142CF25F1EF702C100CD50F7 /* FDACell.m in Sources */ = {isa = PBXBuildFile; fileRef = 142CF25B1EF702C100CD50F7 /* FDACell.m */; };
+		142CF2601EF702C100CD50F7 /* FDAFlickrDataBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 142CF25E1EF702C100CD50F7 /* FDAFlickrDataBase.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,11 @@
 		142CF24B1EF7020B00CD50F7 /* FlickrDownloadAppWithTableTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlickrDownloadAppWithTableTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		142CF24F1EF7020B00CD50F7 /* FlickrDownloadAppWithTableTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FlickrDownloadAppWithTableTests.m; sourceTree = "<group>"; };
 		142CF2511EF7020B00CD50F7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		142CF25A1EF702C100CD50F7 /* FDACell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDACell.h; sourceTree = "<group>"; };
+		142CF25B1EF702C100CD50F7 /* FDACell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDACell.m; sourceTree = "<group>"; };
+		142CF25C1EF702C100CD50F7 /* FDADataBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDADataBase.h; sourceTree = "<group>"; };
+		142CF25D1EF702C100CD50F7 /* FDAFlickrDataBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDAFlickrDataBase.h; sourceTree = "<group>"; };
+		142CF25E1EF702C100CD50F7 /* FDAFlickrDataBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDAFlickrDataBase.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +88,9 @@
 		142CF2341EF7020B00CD50F7 /* FlickrDownloadAppWithTable */ = {
 			isa = PBXGroup;
 			children = (
+				142CF25A1EF702C100CD50F7 /* FDACell.h */,
+				142CF25B1EF702C100CD50F7 /* FDACell.m */,
+				142CF2611EF703B200CD50F7 /* Data */,
 				142CF2381EF7020B00CD50F7 /* AppDelegate.h */,
 				142CF2391EF7020B00CD50F7 /* AppDelegate.m */,
 				142CF23B1EF7020B00CD50F7 /* ViewController.h */,
@@ -109,6 +119,16 @@
 				142CF2511EF7020B00CD50F7 /* Info.plist */,
 			);
 			path = FlickrDownloadAppWithTableTests;
+			sourceTree = "<group>";
+		};
+		142CF2611EF703B200CD50F7 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				142CF25C1EF702C100CD50F7 /* FDADataBase.h */,
+				142CF25D1EF702C100CD50F7 /* FDAFlickrDataBase.h */,
+				142CF25E1EF702C100CD50F7 /* FDAFlickrDataBase.m */,
+			);
+			name = Data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -218,6 +238,8 @@
 				142CF23D1EF7020B00CD50F7 /* ViewController.m in Sources */,
 				142CF23A1EF7020B00CD50F7 /* AppDelegate.m in Sources */,
 				142CF2371EF7020B00CD50F7 /* main.m in Sources */,
+				142CF25F1EF702C100CD50F7 /* FDACell.m in Sources */,
+				142CF2601EF702C100CD50F7 /* FDAFlickrDataBase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
