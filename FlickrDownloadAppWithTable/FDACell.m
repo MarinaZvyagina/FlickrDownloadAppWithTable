@@ -7,27 +7,27 @@
 //
 
 #import "FDACell.h"
+#import "FDAViewManager.h"
+@import Masonry;
 
 NSString *const FDACellIdentifier = @"FDACellIdentifier";
 
 @interface FDACell ()
-@property (nonatomic, strong) UIImageView * pictureImage;
+
 @end
 
 
 @implementation FDACell
 
-
-- (instancetype)initWithUrl: (NSString *)url {
-    self = [super init];
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self){
         [self createSubviews];
-        [self loadImage:url];
     }
     return self;
 }
 
--(void) loadImage: (NSString *) url {
+-(void) loadImage: (NSString *) url andSize:(CGSize)size {
     __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
@@ -40,7 +40,8 @@ NSString *const FDACellIdentifier = @"FDACellIdentifier";
                                          dispatch_sync(dispatch_get_main_queue(), ^{
                                              __strong typeof(self) strongSelf = weakSelf;
                                              if (strongSelf) {
-                                                 strongSelf.pictureImage.image = [UIImage imageWithData:imageData];
+                                                 UIImage *image = [UIImage imageWithData:imageData];
+                                                 strongSelf.pictureImage.image = [self imageWithImage:image scaledToSize:size];
                                              }
                                          });
                                      });
@@ -48,8 +49,17 @@ NSString *const FDACellIdentifier = @"FDACellIdentifier";
 }
 
 -(void)createSubviews {
-    self.pictureImage = [UIImageView new];
+    self.pictureImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width)];
     [self addSubview:self.pictureImage];
+}
+
+-(UIImage *)imageWithImage:(UIImage *)imageToCompress scaledToSize:(CGSize)newSize {
+    
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
+    [imageToCompress drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
 }
 
 @end

@@ -10,9 +10,9 @@
 @import UIKit;
 
 extern NSString *const FDACellIdentifier;
+@protocol FDAViewManager;
 
-
-@interface FDACell : UICollectionViewCell
-
-- (instancetype)initWithUrl: (NSString *)url;
+@interface FDACell : UITableViewCell
+@property (nonatomic, strong) UIImageView * pictureImage;
+-(void) loadImage: (NSString *) url andSize:(CGSize)size;
 @end

@@ -8,11 +8,17 @@
 
 #import "ViewController.h"
 #import "FDACell.h"
+#import "FDAViewManager.h"
+@import Masonry;
 
-@interface ViewController () <UITableViewDelegate, UITableViewDataSource>
+@interface ViewController () <UITableViewDelegate, UITableViewDataSource, FDAViewManager>
 @property (nonatomic, copy) NSArray <NSString *> * pictures;
 @property (nonatomic, strong) id<FDADataBase> picturesManager;
 @property (nonatomic, strong) UITableView * tableView;
+@property (nonatomic, strong) UISearchController *searchController;
+
+@property (nonatomic, strong) NSOperationQueue *imageOperationQueue;
+@property (nonatomic, strong) NSCache *imageCache;
 @end
 
 @implementation ViewController
@@ -29,6 +35,9 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [UIColor whiteColor];
+    self.imageOperationQueue = [NSOperationQueue new];
+    self.imageOperationQueue.maxConcurrentOperationCount = 4;
+    self.imageCache = [NSCache new];
     
     UICollectionViewFlowLayout* flowLayout = [[UICollectionViewFlowLayout alloc] init];
     flowLayout.itemSize = CGSizeMake(100, 100);
@@ -36,10 +45,33 @@
     self.tableView = [[UITableView alloc] initWithFrame:self.view.frame];
     
     [self.view addSubview:self.tableView];
+
+    self.searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
+    self.searchController.dimsBackgroundDuringPresentation = NO;
+    [self setDelegates];
+    self.searchController.searchBar.placeholder = @"Search Here";
+    self.tableView.tableHeaderView = self.searchController.searchBar;
+    [self.searchController.searchBar sizeToFit];
+    
+    [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.view.mas_top).with.offset(30);
+        make.left.equalTo(self.view.mas_left);
+        make.right.equalTo(self.view.mas_right);
+        make.bottom.equalTo(self.view.mas_bottom);
+    }];
+    
+    
+
+    [self setDelegates];
+    self.pictures = [self.picturesManager getPictures:@""];
+    [self.tableView registerClass:[FDACell class] forCellReuseIdentifier:FDACellIdentifier];
+}
+
+-(void)setDelegates {
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
-    
-    self.pictures = [self.picturesManager getPictures:@"Cat"];
+    self.searchController.searchResultsUpdater = self;
+    self.searchController.searchBar.delegate = self;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -47,39 +79,50 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UIImage * compressedImage = [self setImageSizeWithIndex:indexPath.row];
-    UITableViewCell *cell = [UITableViewCell new];
-    UIImageView * view = [[UIImageView alloc] initWithImage:compressedImage];
-    [cell.contentView addSubview:view];
+    UITableViewCell *cell = (FDACell *)[tableView dequeueReusableCellWithIdentifier:FDACellIdentifier forIndexPath:indexPath];
+    if (cell == nil) {
+        cell = [[FDACell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:FDACellIdentifier];
+    }
+//    [(FDACell *)cell loadImage:self.pictures[indexPath.row] andSize:CGSizeMake(self.view.frame.size.width, self.view.frame.size.width)];
+
+    NSString *imageUrlString = self.pictures[indexPath.row];
+    UIImage *imageFromCache = [self.imageCache objectForKey:imageUrlString];
+    
+    if (imageFromCache) {
+        ((FDACell *)cell).pictureImage.image = imageFromCache;
+    } else {
+        ((FDACell *)cell).pictureImage.image = [UIImage imageNamed:@"Placeholder"];
+        [self.imageOperationQueue addOperationWithBlock:^{
+            NSURL *imageurl = [NSURL URLWithString:imageUrlString];
+            UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageurl]];
+            if (img != nil) {
+                [self.imageCache setObject:img forKey:imageUrlString];
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        UITableViewCell *updateCell = (FDACell *)[tableView dequeueReusableCellWithIdentifier:FDACellIdentifier forIndexPath:indexPath];
+                    if (updateCell) {
+                        ((FDACell *)cell).pictureImage.image = img;
+                    }
+                }];
+            }
+        }];
+    }
     
     return cell;
 }
 
--(UIImage *)imageWithImage:(UIImage *)imageToCompress scaledToSize:(CGSize)newSize {
-    
-    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
-    [imageToCompress drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return newImage;
+-(void)reloadData {
+    [self.tableView reloadData];
 }
 
--(UIImage *)setImageSizeWithIndex:(NSInteger) row {
-    NSURL * url = [[NSURL alloc] initWithString:self.pictures[row]];
-    CIImage * im = [[CIImage alloc] initWithContentsOfURL:url];
-    UIImage * image = [[UIImage alloc] initWithCIImage:im scale:1.0 orientation:UIImageOrientationUp];
-    CGSize sizeForImage;
-
-    sizeForImage = CGSizeMake (self.view.bounds.size.width/2,self.view.bounds.size.width/2);
-    UIImage * compressedImage = [self imageWithImage:image scaledToSize:sizeForImage];
-    return compressedImage;
+- (void)updateSearchResultsForSearchController:(UISearchController *)searchController
+{
+    NSString *searchString = searchController.searchBar.text;
+    self.pictures = [self.picturesManager getPictures:searchString];
+    [self.tableView reloadData];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    UIImage * compressedImage = [self setImageSizeWithIndex:indexPath.row];
-
-    return compressedImage.size.height;
+    return self.view.frame.size.width;
 }
 
 @end

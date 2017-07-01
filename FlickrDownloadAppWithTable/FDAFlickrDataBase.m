@@ -13,8 +13,7 @@
 -(NSArray <NSString *>*)getPictures: (NSString *)phrase{
     if (phrase == nil )
         phrase = @"";
-    NSString * string = @"https://api.flickr.com/services/rest/?method=flickr.photos.search&text=Cat&api_key=c55f5a419863413f77af53764f86bd66&format=json&nojsoncallback=1";
-
+    NSString * string = [[NSString alloc] initWithFormat:@"https://api.flickr.com/services/rest/?method=flickr.photos.search&text=%@&api_key=c55f5a419863413f77af53764f86bd66&format=json&nojsoncallback=1", phrase ];
     NSURLRequest *nsurlRequest=[NSURLRequest requestWithURL:[NSURL URLWithString:string]];
     
     __block NSData *responseData = [NSURLConnection sendSynchronousRequest:nsurlRequest returningResponse:nil error:nil];
@@ -34,7 +33,6 @@
         NSDictionary * JSONObject = [NSJSONSerialization JSONObjectWithData:responseData options:NSJSONReadingAllowFragments error:nil];
 
        // https://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}.jpg
-        NSString * str = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         NSDictionary * photos = [JSONObject objectForKey:@"photos"];
         NSDictionary * photo = [photos objectForKey:@"photo"];
         
