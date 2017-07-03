@@ -7,32 +7,37 @@
 //
 
 #import "FDAFlickrDataBase.h"
+#import "FDAViewManager.h"
 
 @implementation FDAFlickrDataBase
 
--(NSArray <NSString *>*)getPictures: (NSString *)phrase{
+-(void)getPictures: (NSString *)phrase withViewManager:(id<FDAViewManager>) manager;
+{
     if (phrase == nil )
         phrase = @"";
     NSString * string = [[NSString alloc] initWithFormat:@"https://api.flickr.com/services/rest/?method=flickr.photos.search&text=%@&api_key=c55f5a419863413f77af53764f86bd66&format=json&nojsoncallback=1", phrase ];
     NSURLRequest *nsurlRequest=[NSURLRequest requestWithURL:[NSURL URLWithString:string]];
-    
-    __block NSData *responseData = [NSURLConnection sendSynchronousRequest:nsurlRequest returningResponse:nil error:nil];
-    
     NSURLSessionConfiguration * defaultConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:defaultConfiguration delegate:self delegateQueue:[NSOperationQueue mainQueue]];
     
-    
-    [[session dataTaskWithRequest:nsurlRequest
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:nsurlRequest
                 completionHandler:^(NSData *data,
                                     NSURLResponse *response,
                                     NSError *error) {
-                    responseData = data;
-                }] resume];
+                    NSArray * photos = [self getPhotosFromJSONData:data];
+                    [manager reloadData:photos];
+                    
+                }];
+    
+    [task resume];
+}
+
+-(NSArray *)getPhotosFromJSONData:(NSData *)responseData {
     NSMutableArray * result = [NSMutableArray new];
     if (responseData) {
         NSDictionary * JSONObject = [NSJSONSerialization JSONObjectWithData:responseData options:NSJSONReadingAllowFragments error:nil];
-
-       // https://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}.jpg
+        
+        // https://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}.jpg
         NSDictionary * photos = [JSONObject objectForKey:@"photos"];
         NSDictionary * photo = [photos objectForKey:@"photo"];
         
@@ -41,7 +46,7 @@
             NSString *server_id = [object objectForKey:@"server"];
             NSString *photo_id = [object objectForKey:@"id"];
             NSString *secret = [object objectForKey:@"secret"];
-           
+            
             NSString *s0 = @"https://farm";
             NSString *s1 = [s0 stringByAppendingString:farm_id.description];
             NSString *s2 = [s1 stringByAppendingString:@".staticflickr.com/"];

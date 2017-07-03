@@ -10,5 +10,5 @@
 #import "FDADataBase.h"
 
 @interface FDAFlickrDataBase : NSObject <FDADataBase>
--(NSArray <NSString *>*)getPictures: (NSString *)phrase;
+-(void)getPictures: (NSString *)phrase withViewManager:(id<FDAViewManager>) manager;
 @end

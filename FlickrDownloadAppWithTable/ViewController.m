@@ -60,10 +60,8 @@
         make.bottom.equalTo(self.view.mas_bottom);
     }];
     
-    
-
     [self setDelegates];
-    self.pictures = [self.picturesManager getPictures:@""];
+    [self.picturesManager getPictures:@"" withViewManager:self];
     [self.tableView registerClass:[FDACell class] forCellReuseIdentifier:FDACellIdentifier];
 }
 
@@ -83,8 +81,7 @@
     if (cell == nil) {
         cell = [[FDACell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:FDACellIdentifier];
     }
-//    [(FDACell *)cell loadImage:self.pictures[indexPath.row] andSize:CGSizeMake(self.view.frame.size.width, self.view.frame.size.width)];
-
+    
     NSString *imageUrlString = self.pictures[indexPath.row];
     UIImage *imageFromCache = [self.imageCache objectForKey:imageUrlString];
     
@@ -110,14 +107,15 @@
     return cell;
 }
 
--(void)reloadData {
+-(void)reloadData:(NSArray<NSString *>*) data {
+    self.pictures = data;
     [self.tableView reloadData];
 }
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
 {
     NSString *searchString = searchController.searchBar.text;
-    self.pictures = [self.picturesManager getPictures:searchString];
+    [self.picturesManager getPictures:searchString withViewManager:self];
     [self.tableView reloadData];
 }
 
