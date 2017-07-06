@@ -23,6 +23,8 @@
 
 @implementation ViewController
 
+static NSUInteger cellSize = 100;
+
 -(instancetype) initWithPicturesManager:(id<FDADataBase>) picturesManager {
     self = [super init];
     if (self) {
@@ -39,9 +41,6 @@
     self.imageOperationQueue.maxConcurrentOperationCount = 4;
     self.imageCache = [NSCache new];
     
-    UICollectionViewFlowLayout* flowLayout = [[UICollectionViewFlowLayout alloc] init];
-    flowLayout.itemSize = CGSizeMake(100, 100);
-    [flowLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
     self.tableView = [[UITableView alloc] initWithFrame:self.view.frame];
     
     [self.view addSubview:self.tableView];
@@ -91,19 +90,9 @@
         ((FDACell *)cell).pictureImage.image = [UIImage imageNamed:@"Placeholder"];
         [self.imageOperationQueue addOperationWithBlock:^{
             NSURL *imageurl = [NSURL URLWithString:imageUrlString];
-            UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageurl]];
-            if (img != nil) {
-                [self.imageCache setObject:img forKey:imageUrlString];
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                        UITableViewCell *updateCell = (FDACell *)[tableView dequeueReusableCellWithIdentifier:FDACellIdentifier forIndexPath:indexPath];
-                    if (updateCell) {
-                        ((FDACell *)cell).pictureImage.image = img;
-                    }
-                }];
-            }
+            [(FDACell *)cell loadImage:imageUrlString andSize:CGSizeMake(cellSize, cellSize)];
         }];
     }
-    
     return cell;
 }
 
@@ -120,7 +109,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return self.view.frame.size.width;
+    return cellSize;
 }
 
 @end
