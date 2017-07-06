@@ -13,7 +13,7 @@
 NSString *const FDACellIdentifier = @"FDACellIdentifier";
 
 @interface FDACell ()
-
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 @end
 
 
@@ -28,6 +28,8 @@ NSString *const FDACellIdentifier = @"FDACellIdentifier";
 }
 
 -(void) loadImage: (NSString *) url andSize:(CGSize)size {
+    self.activityIndicator.hidden = NO;
+    [self.activityIndicator startAnimating];
     __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
@@ -43,14 +45,35 @@ NSString *const FDACellIdentifier = @"FDACellIdentifier";
                                                  UIImage *image = [UIImage imageWithData:imageData];
                                                  strongSelf.pictureImage.image = [self imageWithImage:image scaledToSize:size];
                                              }
+                                             [self.activityIndicator stopAnimating];
+                                             self.activityIndicator.hidden = YES;
                                          });
                                      });
                    });
 }
 
 -(void)createSubviews {
-    self.pictureImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width)];
+    self.pictureImage = [UIImageView new];
     [self addSubview:self.pictureImage];
+    
+    [self.pictureImage mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.mas_top);
+        make.bottom.equalTo(self.mas_bottom);
+        make.left.equalTo(self.mas_left);
+        make.width.equalTo(self.mas_height);
+    }];
+    
+    self.activityIndicator = [UIActivityIndicatorView new];
+    [self.activityIndicator setColor:UIColor.blackColor];
+    self.activityIndicator.hidden = NO;
+    [self.pictureImage addSubview:self.activityIndicator];
+
+    [self.activityIndicator mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.width.equalTo(@50);
+        make.height.equalTo(@50);
+        make.top.equalTo(self.imageView.mas_top);
+        make.left.equalTo(self.imageView.mas_left);
+    }];
 }
 
 -(UIImage *)imageWithImage:(UIImage *)imageToCompress scaledToSize:(CGSize)newSize {
